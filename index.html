@@ -1,0 +1,176 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+  <meta charset="UTF-8">
+  <title>Sorteio de Alcoolemia - Nova Lista</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <style>
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      text-align: center;
+      background: linear-gradient(to right, #74ebd5, #ACB6E5);
+      padding: 30px;
+      color: #333;
+    }
+
+    h2 {
+      margin-bottom: 20px;
+      font-size: 28px;
+      color: #fff;
+      text-shadow: 1px 1px 2px #000;
+    }
+
+    .buttons {
+      margin-bottom: 20px;
+    }
+
+    button {
+      padding: 12px 20px;
+      font-size: 16px;
+      margin: 5px;
+      cursor: pointer;
+      border: none;
+      border-radius: 8px;
+      transition: 0.3s;
+      font-weight: bold;
+    }
+
+    button:hover {
+      transform: scale(1.05);
+      opacity: 0.9;
+    }
+
+    .sortear { background-color: #ff6f61; color: white; }
+    .historico-btn { background-color: #4CAF50; color: white; }
+    .baixar-btn { background-color: #2196F3; color: white; }
+    .limpar-btn { background-color: #f44336; color: white; }
+
+    #resultado {
+      font-size: 24px;
+      font-weight: bold;
+      margin: 25px 0;
+      color: #fff;
+      text-shadow: 1px 1px 3px #000;
+      min-height: 30px;
+    }
+
+    #listaHistorico {
+      max-width: 600px;
+      margin: 0 auto;
+      text-align: left;
+      display: none;
+    }
+
+    .historico-item {
+      background: rgba(255,255,255,0.9);
+      padding: 12px;
+      margin: 10px 0;
+      border-radius: 8px;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+    }
+  </style>
+</head>
+<body>
+
+  <h2>Sorteio de Alcoolemia</h2>
+
+  <div class="buttons">
+    <button class="sortear" onclick="sortear()">Sortear Nome</button>
+    <button class="historico-btn" onclick="toggleHistorico()">Ver/Esconder Histórico</button>
+    <button class="baixar-btn" onclick="baixarCSV()">Baixar CSV</button>
+    <button class="limpar-btn" onclick="limparHistorico()">Limpar Histórico</button>
+  </div>
+
+  <div id="resultado"></div>
+
+  <div id="listaHistorico"></div>
+
+  <script>
+    // LISTA DE NOMES ATUALIZADA
+    const nomes = [
+      "ELVIS JOHNY CORREA DA SILVA",
+      "GILSON DA SILVA SANTANA",
+      "ALESSANDRO MENDES D'OLIVEIRA",
+      "RAYNNARA ALVES LOURENCO",
+      "DOMINGOS GONÇALVES NETO",
+      "JONAIR SILVA OLIVEIRA",
+      "OZIAS DE OLIVEIRA OZORIO",
+      "FERNANDA DE SOUZA MENDES",
+      "DANILO FALCAO RODRIGUES BRAGA",
+      "PAMELA CIRINO JOTA",
+      "MARIA RITA DA SILVA SANTOS",
+      "KETLEN JACQUELINE DE J ASSIS",
+      "IVONE MOTA SILVA",
+      "WILLIAM BATISTA DE DEUS",
+      "SILVIO DE FREITAS NETO"
+    ];
+
+    function sortear() {
+      const sorteado = nomes[Math.floor(Math.random() * nomes.length)];
+      document.getElementById("resultado").innerHTML = "SELECIONADO:<br>" + sorteado;
+      salvarHistorico(sorteado);
+    }
+
+    function salvarHistorico(nome) {
+      const historico = JSON.parse(localStorage.getItem("historicoSorteios_v2")) || [];
+      const registro = { 
+        numero: historico.length + 1, 
+        data: new Date().toLocaleString('pt-BR'), 
+        sorteado: nome 
+      };
+      historico.push(registro);
+      localStorage.setItem("historicoSorteios_v2", JSON.stringify(historico));
+      atualizarHistorico();
+    }
+
+    function atualizarHistorico() {
+      const historico = JSON.parse(localStorage.getItem("historicoSorteios_v2")) || [];
+      const div = document.getElementById("listaHistorico");
+      div.innerHTML = "";
+      // Exibe do mais novo para o mais antigo
+      [...historico].reverse().forEach(item => {
+        div.innerHTML += `<div class="historico-item">
+          <strong>Sorteio #${item.numero}</strong><br>
+          📅 Data: ${item.data}<br>
+          👤 Selecionado: <strong>${item.sorteado}</strong>
+        </div>`;
+      });
+    }
+
+    function toggleHistorico() {
+      const div = document.getElementById("listaHistorico");
+      div.style.display = div.style.display === "none" ? "block" : "none";
+    }
+
+    function baixarCSV() {
+      const historico = JSON.parse(localStorage.getItem("historicoSorteios_v2")) || [];
+      if(historico.length === 0){ alert("Não há dados para baixar."); return; }
+      
+      let csv = "Numero,Data,Selecionado\n";
+      historico.forEach(item => {
+        csv += `${item.numero},"${item.data}","${item.sorteado}"\n`;
+      });
+
+      // Adiciona BOM para o Excel reconhecer caracteres especiais (ç, ~, etc)
+      const blob = new Blob(["\ufeff" + csv], {type: "text/csv;charset=utf-8;"});
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = "historico_alcoolemia.csv";
+      a.click();
+      URL.revokeObjectURL(url);
+    }
+
+    function limparHistorico() {
+      if(confirm("Tem certeza que deseja apagar todo o histórico de sorteios?")) {
+        localStorage.removeItem("historicoSorteios_v2");
+        document.getElementById("resultado").innerText = "";
+        atualizarHistorico();
+      }
+    }
+
+    window.onload = atualizarHistorico;
+  </script>
+
+</body>
+</html>
