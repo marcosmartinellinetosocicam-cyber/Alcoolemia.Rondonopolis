@@ -2,138 +2,169 @@
 <html lang="pt-br">
 <head>
   <meta charset="UTF-8">
-  <title>Sorteio de Alcoolemia - Nova Lista</title>
+  <title>Sorteio de Alcoolemia - Unidade ROO</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <style>
     body {
       font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
       text-align: center;
-      background: linear-gradient(to right, #74ebd5, #ACB6E5);
+      background: linear-gradient(to right, #2c3e50, #4ca1af);
       padding: 30px;
       color: #333;
+      min-height: 100vh;
+      margin: 0;
     }
 
-    h2 {
-      margin-bottom: 20px;
-      font-size: 28px;
-      color: #fff;
-      text-shadow: 1px 1px 2px #000;
+    /* Tela de Login */
+    #telaLogin {
+      background: white;
+      max-width: 350px;
+      margin: 80px auto;
+      padding: 40px 20px;
+      border-radius: 15px;
+      box-shadow: 0 10px 25px rgba(0,0,0,0.3);
     }
-
-    .buttons {
-      margin-bottom: 20px;
-    }
-
-    button {
-      padding: 12px 20px;
-      font-size: 16px;
-      margin: 5px;
-      cursor: pointer;
-      border: none;
-      border-radius: 8px;
-      transition: 0.3s;
-      font-weight: bold;
-    }
-
-    button:hover {
-      transform: scale(1.05);
-      opacity: 0.9;
-    }
-
-    .sortear { background-color: #ff6f61; color: white; }
-    .historico-btn { background-color: #4CAF50; color: white; }
-    .baixar-btn { background-color: #2196F3; color: white; }
-    .limpar-btn { background-color: #f44336; color: white; }
-
-    #resultado {
-      font-size: 24px;
-      font-weight: bold;
-      margin: 25px 0;
-      color: #fff;
-      text-shadow: 1px 1px 3px #000;
-      min-height: 30px;
-    }
-
-    #listaHistorico {
-      max-width: 600px;
-      margin: 0 auto;
-      text-align: left;
-      display: none;
-    }
-
-    .historico-item {
-      background: rgba(255,255,255,0.9);
+    #telaLogin h3 { color: #2c3e50; margin-bottom: 20px; }
+    input {
+      width: 85%;
       padding: 12px;
       margin: 10px 0;
+      border: 1px solid #ddd;
       border-radius: 8px;
-      box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+      font-size: 16px;
     }
+
+    /* Conteúdo do Sorteio (Inicia escondido) */
+    #conteudoSorteio { display: none; }
+
+    h2 { margin-bottom: 20px; font-size: 28px; color: #fff; text-shadow: 1px 1px 2px #000; }
+    
+    .buttons { margin-bottom: 20px; }
+    button { 
+      padding: 12px 20px; 
+      font-size: 15px; 
+      margin: 5px; 
+      cursor: pointer; 
+      border: none; 
+      border-radius: 8px; 
+      transition: 0.3s; 
+      font-weight: bold; 
+      text-transform: uppercase;
+    }
+    button:hover { transform: scale(1.05); opacity: 0.9; }
+
+    .sortear { background-color: #ff6f61; color: white; width: 200px; font-size: 18px; margin-bottom: 15px; }
+    .historico-btn { background-color: #4CAF50; color: white; }
+    .baixar-btn { background-color: #2196F3; color: white; }
+    .limpar-btn { background-color: #9e9e9e; color: white; }
+
+    #resultado { 
+      font-size: 26px; 
+      font-weight: bold; 
+      margin: 30px 0; 
+      color: #fff; 
+      background: rgba(0,0,0,0.2);
+      padding: 20px;
+      border-radius: 10px;
+      display: inline-block;
+      min-width: 300px;
+    }
+
+    #listaHistorico { max-width: 600px; margin: 20px auto; text-align: left; display: none; }
+    .historico-item { 
+      background: white; 
+      padding: 15px; 
+      margin: 10px 0; 
+      border-radius: 8px; 
+      border-left: 5px solid #ff6f61;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.1); 
+    }
+    #erro { color: #f44336; font-weight: bold; margin-top: 10px; display: none; }
   </style>
 </head>
 <body>
 
-  <h2>Sorteio de Alcoolemia</h2>
-
-  <div class="buttons">
-    <button class="sortear" onclick="sortear()">Sortear Nome</button>
-    <button class="historico-btn" onclick="toggleHistorico()">Ver/Esconder Histórico</button>
-    <button class="baixar-btn" onclick="baixarCSV()">Baixar CSV</button>
-    <button class="limpar-btn" onclick="limparHistorico()">Limpar Histórico</button>
+  <div id="telaLogin">
+    <h3>Acesso Unidade ROO</h3>
+    <input type="text" id="usuario" placeholder="Usuário">
+    <input type="password" id="senha" placeholder="Senha">
+    <br>
+    <button class="sortear" onclick="verificarLogin()" style="width: 90%;">Entrar</button>
+    <p id="erro">Usuário ou Senha incorretos!</p>
   </div>
 
-  <div id="resultado"></div>
+  <div id="conteudoSorteio">
+    <h2>Sorteio de Alcoolemia</h2>
+    
+    <div class="buttons">
+      <button class="sortear" onclick="sortear()">Sortear Agora</button><br>
+      <button class="historico-btn" onclick="toggleHistorico()">Ver Histórico</button>
+      <button class="baixar-btn" onclick="baixarCSV()">Baixar Relatório (CSV)</button>
+      <button class="limpar-btn" onclick="limparHistorico()">Limpar Tudo</button>
+    </div>
 
-  <div id="listaHistorico"></div>
+    <div id="resultado">Aguardando sorteio...</div>
+
+    <div id="listaHistorico"></div>
+  </div>
 
   <script>
-    // LISTA DE NOMES ATUALIZADA
+    // --- CONFIGURAÇÃO DE ACESSO ---
+    const LOGIN_CORRETO = "Unidade.roo26";
+    const SENHA_CORRETA = "Roo2026";
+
+    function verificarLogin() {
+      const u = document.getElementById("usuario").value;
+      const s = document.getElementById("senha").value;
+      if(u === LOGIN_CORRETO && s === SENHA_CORRETA) {
+        document.getElementById("telaLogin").style.display = "none";
+        document.getElementById("conteudoSorteio").style.display = "block";
+        atualizarHistorico();
+      } else {
+        document.getElementById("erro").style.display = "block";
+      }
+    }
+
+    // LISTA DE NOMES DA UNIDADE
     const nomes = [
-      "ELVIS JOHNY CORREA DA SILVA",
-      "GILSON DA SILVA SANTANA",
-      "ALESSANDRO MENDES D'OLIVEIRA",
-      "RAYNNARA ALVES LOURENCO",
-      "DOMINGOS GONÇALVES NETO",
-      "JONAIR SILVA OLIVEIRA",
-      "OZIAS DE OLIVEIRA OZORIO",
-      "FERNANDA DE SOUZA MENDES",
-      "DANILO FALCAO RODRIGUES BRAGA",
-      "PAMELA CIRINO JOTA",
-      "MARIA RITA DA SILVA SANTOS",
-      "KETLEN JACQUELINE DE J ASSIS",
-      "IVONE MOTA SILVA",
-      "WILLIAM BATISTA DE DEUS",
-      "SILVIO DE FREITAS NETO"
+      "ELVIS JOHNY CORREA DA SILVA", "GILSON DA SILVA SANTANA",
+      "ALESSANDRO MENDES D'OLIVEIRA", "RAYNNARA ALVES LOURENCO",
+      "DOMINGOS GONÇALVES NETO", "JONAIR SILVA OLIVEIRA",
+      "OZIAS DE OLIVEIRA OZORIO", "FERNANDA DE SOUZA MENDES",
+      "DANILO FALCAO RODRIGUES BRAGA", "PAMELA CIRINO JOTA",
+      "MARIA RITA DA SILVA SANTOS", "KETLEN JACQUELINE DE J ASSIS",
+      "IVONE MOTA SILVA", "WILLIAM BATISTA DE DEUS", "SILVIO DE FREITAS NETO"
     ];
 
     function sortear() {
       const sorteado = nomes[Math.floor(Math.random() * nomes.length)];
-      document.getElementById("resultado").innerHTML = "SELECIONADO:<br>" + sorteado;
+      document.getElementById("resultado").innerHTML = "<small>SELECIONADO:</small><br>" + sorteado;
       salvarHistorico(sorteado);
     }
 
     function salvarHistorico(nome) {
-      const historico = JSON.parse(localStorage.getItem("historicoSorteios_v2")) || [];
+      const historico = JSON.parse(localStorage.getItem("hist_roo_26")) || [];
       const registro = { 
         numero: historico.length + 1, 
         data: new Date().toLocaleString('pt-BR'), 
         sorteado: nome 
       };
       historico.push(registro);
-      localStorage.setItem("historicoSorteios_v2", JSON.stringify(historico));
+      localStorage.setItem("hist_roo_26", JSON.stringify(historico));
       atualizarHistorico();
     }
 
     function atualizarHistorico() {
-      const historico = JSON.parse(localStorage.getItem("historicoSorteios_v2")) || [];
+      const historico = JSON.parse(localStorage.getItem("hist_roo_26")) || [];
       const div = document.getElementById("listaHistorico");
       div.innerHTML = "";
-      // Exibe do mais novo para o mais antigo
       [...historico].reverse().forEach(item => {
-        div.innerHTML += `<div class="historico-item">
-          <strong>Sorteio #${item.numero}</strong><br>
-          📅 Data: ${item.data}<br>
-          👤 Selecionado: <strong>${item.sorteado}</strong>
-        </div>`;
+        div.innerHTML += `
+          <div class="historico-item">
+            <strong>Sorteio #${item.numero}</strong><br>
+            📅 Data/Hora: ${item.data}<br>
+            👤 Nome: <strong>${item.sorteado}</strong>
+          </div>`;
       });
     }
 
@@ -143,33 +174,32 @@
     }
 
     function baixarCSV() {
-      const historico = JSON.parse(localStorage.getItem("historicoSorteios_v2")) || [];
-      if(historico.length === 0){ alert("Não há dados para baixar."); return; }
-      
+      const historico = JSON.parse(localStorage.getItem("hist_roo_26")) || [];
+      if(historico.length === 0) return alert("Não há dados para exportar.");
       let csv = "Numero,Data,Selecionado\n";
-      historico.forEach(item => {
-        csv += `${item.numero},"${item.data}","${item.sorteado}"\n`;
-      });
-
-      // Adiciona BOM para o Excel reconhecer caracteres especiais (ç, ~, etc)
+      historico.forEach(item => csv += `${item.numero},"${item.data}","${item.sorteado}"\n`);
       const blob = new Blob(["\ufeff" + csv], {type: "text/csv;charset=utf-8;"});
       const url = URL.createObjectURL(blob);
       const a = document.createElement("a");
       a.href = url;
-      a.download = "historico_alcoolemia.csv";
+      a.download = "relatorio_sorteio_ROO.csv";
       a.click();
-      URL.revokeObjectURL(url);
     }
 
     function limparHistorico() {
-      if(confirm("Tem certeza que deseja apagar todo o histórico de sorteios?")) {
-        localStorage.removeItem("historicoSorteios_v2");
-        document.getElementById("resultado").innerText = "";
+      if(confirm("Deseja apagar permanentemente o histórico desta unidade?")) {
+        localStorage.removeItem("hist_roo_26");
+        document.getElementById("resultado").innerText = "Aguardando sorteio...";
         atualizarHistorico();
       }
     }
 
-    window.onload = atualizarHistorico;
+    // Permitir login ao apertar "Enter"
+    document.addEventListener('keypress', function (e) {
+      if (e.key === 'Enter') {
+        verificarLogin();
+      }
+    });
   </script>
 
 </body>
